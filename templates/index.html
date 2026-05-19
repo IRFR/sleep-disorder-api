@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Predictor de Trastornos de Sueño 🌙</title>
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 600px;
+            width: 100%;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px 20px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 0.95em;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+            font-size: 0.95em;
+        }
+
+        .label-help {
+            display: block;
+            font-size: 0.8em;
+            color: #666;
+            font-weight: normal;
+            margin-top: 3px;
+        }
+
+        input[type="number"],
+        input[type="range"],
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1em;
+            font-family: inherit;
+            transition: border-color 0.3s ease;
+        }
+
+        input[type="number"]:focus,
+        select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        input[type="range"] {
+            padding: 0;
+            height: 6px;
+            cursor: pointer;
+        }
+
+        .range-container {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .range-container input[type="range"] {
+            flex: 1;
+        }
+
+        .range-value {
+            min-width: 50px;
+            text-align: center;
+            font-weight: 600;
+            color: #667eea;
+            background: #f5f5f5;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 0.95em;
+        }
+
+        .section-title {
+            font-size: 1.1em;
+            font-weight: 700;
+            color: #667eea;
+            margin-top: 30px;
+            margin-bottom: 20px;
+            padding-top: 20px;
+            border-top: 2px solid #f0f0f0;
+        }
+
+        .form-section:first-of-type .section-title {
+            margin-top: 0;
+            padding-top: 0;
+            border-top: none;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 12px;
+            margin-top: 35px;
+        }
+
+        button {
+            flex: 1;
+            padding: 14px 20px;
+            font-size: 1em;
+            font-weight: 600;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        .btn-primary.htmx-request {
+            opacity: 0.7;
+        }
+
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+
+        /* Estilos para resultados */
+        .result-box {
+            border-radius: 12px;
+            padding: 30px;
+            margin-top: 20px;
+            animation: slideIn 0.4s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .result-box h2 {
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+
+        .success-box {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-left: 5px solid #667eea;
+        }
+
+        .error-box {
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            border-left: 5px solid #ff6b6b;
+            color: #c92a2a;
+        }
+
+        .error-box h2 {
+            color: #c92a2a;
+        }
+
+        .prediction-main {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .prediction-label {
+            font-size: 0.95em;
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .prediction-value {
+            font-size: 2.2em;
+            font-weight: 800;
+            margin-bottom: 10px;
+            padding: 10px;
+            border-radius: 8px;
+        }
+
+        .prediction-value.severe {
+            color: #c92a2a;
+            background: rgba(201, 42, 42, 0.1);
+        }
+
+        .prediction-value.moderate {
+            color: #f59f00;
+            background: rgba(245, 159, 0, 0.1);
+        }
+
+        .prediction-value.mild {
+            color: #1971c2;
+            background: rgba(25, 113, 194, 0.1);
+        }
+
+        .prediction-value.healthy {
+            color: #2f9e44;
+            background: rgba(47, 158, 68, 0.1);
+        }
+
+        .confidence {
+            font-size: 1.1em;
+            color: #666;
+            font-weight: 600;
+        }
+
+        .probabilities {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .prob-title {
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1em;
+        }
+
+        .prob-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .prob-table tr {
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .prob-table tr:last-child {
+            border-bottom: none;
+        }
+
+        .prob-table td {
+            padding: 12px 0;
+        }
+
+        .prob-name {
+            font-weight: 600;
+            color: #333;
+            min-width: 80px;
+        }
+
+        .prob-bar {
+            color: #667eea;
+            font-size: 0.9em;
+            padding: 0 10px;
+        }
+
+        .prob-percent {
+            text-align: right;
+            font-weight: 600;
+            color: #667eea;
+            min-width: 50px;
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            .header h1 {
+                font-size: 2em;
+            }
+
+            .content {
+                padding: 25px;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            .result-box {
+                padding: 20px;
+            }
+
+            .prob-table td {
+                padding: 10px 0;
+                font-size: 0.9em;
+            }
+        }
+
+        /* Loading state */
+        .htmx-request .btn-primary {
+            position: relative;
+        }
+
+        .htmx-request.btn-primary::after {
+            content: "";
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s linear infinite;
+            margin-left: 8px;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>😴 Predictor de Sueño</h1>
+            <p>Predicción de Trastornos de Sueño con Machine Learning</p>
+        </div>
+
+        <div class="content">
+            <form hx-post="/predict-form" hx-target="#result-container" hx-swap="innerHTML">
+                
+                <div class="form-section">
+                    <div class="section-title">📋 Información General</div>
+                    
+                    <div class="form-group">
+                        <label for="cognitive_performance_score">
+                            Rendimiento Cognitivo
+                            <span class="label-help">Puntuación 0-100</span>
+                        </label>
+                        <div class="range-container">
+                            <input type="range" 
+                                   id="cognitive_performance_score" 
+                                   name="cognitive_performance_score" 
+                                   min="0" max="100" value="50"
+                                   oninput="document.getElementById('cog-value').textContent = this.value">
+                            <span class="range-value" id="cog-value">50</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="sleep_quality_score">
+                            Calidad del Sueño
+                            <span class="label-help">Puntuación 1-10</span>
+                        </label>
+                        <div class="range-container">
+                            <input type="range" 
+                                   id="sleep_quality_score" 
+                                   name="sleep_quality_score" 
+                                   min="1" max="10" step="0.1" value="5"
+                                   oninput="document.getElementById('quality-value').textContent = this.value">
+                            <span class="range-value" id="quality-value">5</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="mental_health_condition">
+                            Estado de Salud Mental
+                            <span class="label-help">Selecciona tu condición actual</span>
+                        </label>
+                        <select id="mental_health_condition" name="mental_health_condition" required>
+                            <option value="">-- Selecciona una opción --</option>
+                            <option value="0">😔 Depresión</option>
+                            <option value="1">😰 Ansiedad</option>
+                            <option value="2">😞 Depresión y Ansiedad</option>
+                            <option value="3" selected>😊 Saludable</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <div class="section-title">🛏️ Datos del Sueño</div>
+
+                    <div class="form-group">
+                        <label for="sleep_duration_hrs">
+                            Duración del Sueño
+                            <span class="label-help">Horas por noche (1-12)</span>
+                        </label>
+                        <div class="range-container">
+                            <input type="range" 
+                                   id="sleep_duration_hrs" 
+                                   name="sleep_duration_hrs" 
+                                   min="1" max="12" step="0.5" value="7"
+                                   oninput="document.getElementById('duration-value').textContent = this.value + 'h'">
+                            <span class="range-value" id="duration-value">7h</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="sleep_latency_mins">
+                            Latencia del Sueño
+                            <span class="label-help">Minutos para conciliar (0-120)</span>
+                        </label>
+                        <div class="range-container">
+                            <input type="range" 
+                                   id="sleep_latency_mins" 
+                                   name="sleep_latency_mins" 
+                                   min="0" max="120" value="15"
+                                   oninput="document.getElementById('latency-value').textContent = this.value + ' min'">
+                            <span class="range-value" id="latency-value">15 min</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="wake_episodes_per_night">
+                            Episodios de Despertar
+                            <span class="label-help">Veces despierto por noche (0-10)</span>
+                        </label>
+                        <div class="range-container">
+                            <input type="range" 
+                                   id="wake_episodes_per_night" 
+                                   name="wake_episodes_per_night" 
+                                   min="0" max="10" value="2"
+                                   oninput="document.getElementById('wake-value').textContent = this.value">
+                            <span class="range-value" id="wake-value">2</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <div class="section-title">💪 Datos Personales</div>
+
+                    <div class="form-group">
+                        <label for="bmi">
+                            Índice de Masa Corporal (BMI)
+                            <span class="label-help">Rango típico 10-50</span>
+                        </label>
+                        <input type="number" 
+                               id="bmi" 
+                               name="bmi" 
+                               step="0.1" 
+                               value="24.5"
+                               min="10" max="50"
+                               required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="stress_score">
+                            Nivel de Estrés
+                            <span class="label-help">Puntuación 0-10</span>
+                        </label>
+                        <div class="range-container">
+                            <input type="range" 
+                                   id="stress_score" 
+                                   name="stress_score" 
+                                   min="0" max="10" step="0.1" value="5"
+                                   oninput="document.getElementById('stress-value').textContent = this.value">
+                            <span class="range-value" id="stress-value">5</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="button-group">
+                    <button type="submit" class="btn-primary">
+                        🔮 Predecir
+                    </button>
+                    <button type="reset" class="btn-secondary">
+                        🔄 Limpiar
+                    </button>
+                </div>
+            </form>
+
+            <div id="result-container"></div>
+        </div>
+    </div>
+</body>
+</html>

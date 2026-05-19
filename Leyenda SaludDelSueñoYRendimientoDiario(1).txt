@@ -1,0 +1,46 @@
+LEYENDA:
+
+Gender
+0	Female
+1	Male
+
+occupation:
+0	Doctor
+1	Driver
+2	Freelancer
+3	Homemaker
+4	Lawyer
+5	Manager
+6	Nurse
+7	Retired
+8	Sales
+9	Software Engineer
+10	Student
+11	Teacher
+
+Chronotype
+0	Morning
+1	Neutral
+2	Evening
+
+mental_health_condition
+0	Depression
+1	Anxiety
+2	Both
+3	Healthy
+
+daytype
+0	Weekday
+1	Weekend
+
+sleep_ disorder_risk
+0	Severe
+1	Moderate
+2	Mild
+3	Healthy
+
+
+
+
+
+

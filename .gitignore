@@ -1,0 +1,61 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Entornos virtuales
+venv/
+ENV/
+env/
+.venv
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Modelos entrenados (primero, genera localmente)
+*.pkl
+*.joblib
+
+# Archivos de datos
+*.csv
+*.xlsx
+*.xls
+
+# Logs
+*.log
+logs/
+
+# Caché
+.cache/
+.pytest_cache/
+.coverage
+
+# Variables de entorno
+.env
+.env.local
+.env.*.local
