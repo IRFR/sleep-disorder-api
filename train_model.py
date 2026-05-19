@@ -6,6 +6,7 @@ Ejecutar una sola vez para generar sleep_model.pkl
 import pandas as pd
 import numpy as np
 import joblib
+import glob
 from imblearn.over_sampling import SMOTE
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
@@ -13,7 +14,20 @@ from sklearn.metrics import accuracy_score
 
 # ─── 1. CARGA DEL DATASET ────────────────────────────────────────────────────
 print("Cargando dataset...")
-dataframe = pd.read_csv('SaludDelSueñoYRendimientoDiario(1).csv', sep=';')
+
+# Buscar el archivo CSV (puede tener caracteres especiales)
+csv_files = glob.glob('*.csv') + glob.glob('*/*.csv')
+csv_file = None
+for f in csv_files:
+    if 'Salud' in f or 'sueno' in f.lower() or 'sueño' in f.lower():
+        csv_file = f
+        break
+
+if not csv_file:
+    raise FileNotFoundError("No se encontró el archivo CSV del dataset")
+
+print(f"Usando dataset: {csv_file}")
+dataframe = pd.read_csv(csv_file, sep=';')
 
 # ─── 2. DEFINICIÓN DE LAS 8 FEATURES MÁS IMPORTANTES ──────────────────────
 top8_features = [
