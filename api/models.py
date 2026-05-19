@@ -21,7 +21,12 @@ class ModelManager:
     
     def __init__(self):
         if self._model is None:
-            self.load_model()
+            try:
+                self.load_model()
+            except FileNotFoundError as e:
+                print(f"⚠️  Modelo no disponible al inicio: {e}")
+                print("⚠️  Se cargará automáticamente cuando se necesite")
+                # NO lanzar excepción - permitir que la app inicie
     
     def load_model(self):
         """Carga el modelo serializado y sus metadatos"""
@@ -38,10 +43,9 @@ class ModelManager:
         
         try:
             if not os.path.exists(str(model_path)):
-                raise FileNotFoundError(
-                    f"Modelo no encontrado en {model_path}\n"
-                    "Ejecuta 'python train_model.py' primero."
-                )
+                print(f"⚠️  Archivo de modelo no encontrado en: {model_path}")
+                print("⚠️  La API funcionará cuando el modelo esté disponible")
+                return  # No lanzar excepción
             
             self._model = joblib.load(model_path)
             self._metadata = joblib.load(metadata_path)
@@ -49,7 +53,7 @@ class ModelManager:
             
         except Exception as e:
             print(f"✗ Error al cargar el modelo: {e}")
-            raise
+            # No relanzar - permitir que la app continúe
     
     def predict(self, input_data: dict) -> dict:
         """
@@ -62,7 +66,11 @@ class ModelManager:
             dict con predicción, probabilidades y confianza
         """
         if self._model is None:
-            raise RuntimeError("Modelo no está cargado")
+            print("Modelo no cargado, intentando cargar...")
+            self.load_model()
+        
+        if self._model is None:
+            raise RuntimeError("Modelo no está disponible")
         
         # Extraer features en el orden correcto
         features_list = [
