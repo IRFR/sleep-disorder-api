@@ -42,7 +42,7 @@ env/
 *.joblib
 
 # Archivos de datos
-*.csv
+# *.csv  # Necesario para entrenar el modelo en Render
 *.xlsx
 *.xls
 
