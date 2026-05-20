@@ -212,12 +212,26 @@ async def general_exception_handler(request: Request, exc: Exception):
 
 @app.on_event("startup")
 async def startup_event():
-    print("✓ API iniciada correctamente")
-    print(f"✓ Modelo cargado: {model_manager.is_loaded()}")
+    """Evento de startup: carga o entrena el modelo automáticamente"""
+    print("\n" + "="*70)
+    print("API STARTUP - Verificando modelo...")
+    print("="*70)
+    
+    # Si el modelo no está cargado, intenta entrenarlo automáticamente
+    if not model_manager.is_loaded():
+        print("⚠️  Modelo no encontrado. Iniciando entrenamiento automático...")
+        model_manager.train_model_if_missing()
+    
+    # Mostrar estado final
+    print("\n" + "="*70)
     if model_manager.is_loaded():
+        print("✓ API lista para recibir predicciones")
         metadata = model_manager.get_metadata()
-        print(f"  - Precisión del modelo: {metadata.get('accuracy')*100:.2f}%")
-        print(f"  - Features: {len(metadata.get('features', []))} features")
+        print(f"  ✓ Precisión del modelo: {metadata.get('accuracy')*100:.2f}%")
+        print(f"  ✓ Features: {len(metadata.get('features', []))} features")
+    else:
+        print("⚠️  API iniciada sin modelo (será entrenado en primera predicción)")
+    print("="*70 + "\n")
 
 
 if __name__ == "__main__":
