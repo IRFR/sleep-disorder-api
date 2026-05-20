@@ -169,7 +169,7 @@ async def health_check():
     """Health check endpoint para monitoreo"""
     return HealthCheckResponse(
         status="healthy",
-        model_loaded=model_manager.is_loaded(),
+        is_model_loaded=model_manager.is_loaded(),
         version="1.0.0"
     )
 
